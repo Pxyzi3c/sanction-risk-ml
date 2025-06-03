@@ -5,7 +5,7 @@ Data science extension repository of my first end-to-end project.
 
 **Detailed Documentation:** [Sanction Intelligence System for Proactive Risk Detection](https://www.notion.so/Sanction-Intelligence-System-for-Proactive-Risk-Detection-2010742294af80e89652e83e7a3f2f1d?source=copy_link)
 
-----------------------------------
+------------------------------------------------------------------------------------------------------
 ## Model Training and Evaluation
 To effectively detect high-risk patterns within OFAC screening data and optimize our name matching thresholds, we trained and evaluated several classification models. Given the significant class imbalance in our dataset (a very small percentage of "is_match" instances), standard accuracy metrics can be misleading. Therefore, model selection and performance assessment primarily relied on the F1-score and AUC-ROC (Area Under the Receiver Operating Characteristic Curve) for their robustness in such scenarios.
 
