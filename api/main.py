@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import ORJSONResponse
 from pydantic import BaseModel
 from utils.features import compute_features
 from utils.preprocessing import standardize_name
@@ -7,13 +8,16 @@ import numpy as np
 import pandas as pd
 import datetime
 import logging
+import os
 
 app = FastAPI(
     title="Sanction Match Predictor API",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 model = joblib.load("models/xgb_sanction_model.pkl")
+
+os.makedirs("logs", exist_ok=True)
 
 logging.basicConfig(
     filename="logs/predictions.log",
@@ -30,7 +34,7 @@ class MatchRequest(BaseModel):
 class MatchResponse(BaseModel):
     match_probability: float
     is_match: bool
-    threshol: float = 0.8
+    threshold: float = 0.5
 
 @app.post("/predict_match", response_model=MatchResponse)
 def predict_match(request: MatchRequest):

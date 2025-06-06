@@ -7,9 +7,9 @@ def get_fuzz_ratio(name1: str, name2: str, ratio_type: str) -> float:
 
     try:
         if ratio_type == "ratio":
-            round(fuzz.ratio(name1, name2), 2)
+            return round(fuzz.ratio(name1, name2), 2)
         elif ratio_type == "token_sort_ratio":
-            fuzz.token_sort_ratio(name1, name2)
+            return fuzz.token_sort_ratio(name1, name2)
     except:
         return 0
 
