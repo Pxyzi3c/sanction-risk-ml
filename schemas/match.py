@@ -1,0 +1,26 @@
+from pydantic import BaseModel
+from typing import List
+
+class MatchRequest(BaseModel):
+    name1: str
+    name2: str
+
+# Output schema
+class MatchResponse(BaseModel):
+    match_probability: float
+    is_match: bool
+    threshold: float = 0.5
+
+class BulkMatchRequest(BaseModel):
+    input_name: str
+    top_n: int = 5
+
+class MatchCandidate(BaseModel):
+    ofac_name: str
+    match_probability: float
+    is_match: bool
+    threshold: float
+
+class BulkMatchResponse(BaseModel):
+    input_name: str
+    candidates: List[MatchCandidate]

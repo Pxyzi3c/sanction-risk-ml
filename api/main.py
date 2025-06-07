@@ -3,10 +3,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import ORJSONResponse
 from utils.features import compute_features
 from utils.preprocessing import standardize_name
-from utils.db import fetch_sanctions
+from database.db import fetch_sanctions
 from utils.utils import get_fuzz_ratio
-from schemas.predictions import MatchRequest, MatchResponse
-from schemas.sanctions import Sanction
+from schemas.match import MatchRequest, MatchResponse
+from schemas.sanction import Sanction
 import joblib
 import numpy as np
 import pandas as pd
