@@ -1,8 +1,12 @@
+from typing import List
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import ORJSONResponse
-from pydantic import BaseModel
 from utils.features import compute_features
 from utils.preprocessing import standardize_name
+from utils.db import fetch_sanctions
+from utils.utils import get_fuzz_ratio
+from schemas.predictions import MatchRequest, MatchResponse
+from schemas.sanctions import Sanction
 import joblib
 import numpy as np
 import pandas as pd
@@ -24,17 +28,6 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(message)s"
 )
-
-# Input schema
-class MatchRequest(BaseModel):
-    name1: str
-    name2: str
-
-# Output schema
-class MatchResponse(BaseModel):
-    match_probability: float
-    is_match: bool
-    threshold: float = 0.5
 
 @app.post("/predict_match", response_model=MatchResponse)
 def predict_match(request: MatchRequest):
@@ -60,5 +53,22 @@ def predict_match(request: MatchRequest):
             is_match=is_match,
             threshold=threshold
         )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/matches", response_model=List[Sanction])
+async def get_matches(name: str):
+    try:
+        name_std = standardize_name(name)
+        df = fetch_sanctions()
+        threshold = 80
+
+        df["fuzz_ratio"] = df["cleaned_name"].apply(lambda x: get_fuzz_ratio(x, name_std, "ratio"))
+        matches = df[df['fuzz_ratio'] > threshold].fillna('-').to_dict(orient="records")
+
+        if len(matches) == 0:
+            raise HTTPException(status_code=404, detail="No matches found")
+        else:
+            return df[df['fuzz_ratio'] > threshold].fillna('-').to_dict(orient="records")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
