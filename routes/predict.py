@@ -67,7 +67,7 @@ def bulk_match(request: BulkMatchRequest):
             input_name=request.input_name,
             candidates=[
                 MatchCandidate(
-                    ofac_name=row["ofac_name"],
+                    ofac_name=row["cleaned_name"],
                     match_probability=round(row["match_probability"], 4),
                     is_match=row["is_match"],
                     threshold=THRESHOLD
