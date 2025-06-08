@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import URL
 from dotenv import load_dotenv
@@ -37,3 +38,26 @@ def fetch_sanctions_by_country(country: str) -> pd.DataFrame:
         result = connection.execute(query_text, params)
         df = pd.DataFrame(result.fetchall(), columns=result.keys())
     return df
+
+def insert_prediction_log(input_text: str, name: str, prob: float, is_match: bool):
+    engine = get_engine()
+    query_text = text("""
+        INSERT INTO prediction_log (input_name, name, probability, is_match)
+        VALUES (:input_name, :name, :probability, :is_match);         
+    """)
+
+    params = {
+        "input_name": input_text,
+        "name": name,
+        "probability": float(prob),
+        "is_match": bool(is_match)
+    }
+
+    try:
+        with engine.connect() as connection:
+            with connection.begin():
+                connection.execute(query_text, params)
+        return None
+    except Exception as e:
+        print(f"Error inserting prediction log: {e}") 
+        raise

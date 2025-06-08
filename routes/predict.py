@@ -6,7 +6,7 @@ from schemas.match import (
 from database.db import fetch_sanctions
 from utils.preprocessing import standardize_name
 from utils.features import compute_features
-from database.tables import insert_prediction_log
+from database.db import insert_prediction_log
 from typing import List
 import pandas as pd
 import joblib
@@ -67,7 +67,7 @@ def bulk_match(request: BulkMatchRequest):
 
         for _, row in matched.iterrows():
             insert_prediction_log(
-                input_name=input_name,
+                input_text=input_name,
                 name=row["cleaned_name"],
                 prob=row["probability"],
                 is_match=row["is_match"]
@@ -84,7 +84,7 @@ def bulk_match(request: BulkMatchRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/top", response_model=List[MatchResponse])
+@router.post("/top", response_model=MatchResponse)
 def bulk_match_top_only(request: BulkMatchRequest):
     try:
         input_name = standardize_name(request.input_name)
@@ -101,7 +101,7 @@ def bulk_match_top_only(request: BulkMatchRequest):
         is_match = top_match["probability"] >= THRESHOLD
 
         insert_prediction_log(
-            input_name=input_name,
+            input_text=input_name,
             name=top_match["cleaned_name"],
             prob=top_match["probability"],
             is_match=is_match
