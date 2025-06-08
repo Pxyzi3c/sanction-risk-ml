@@ -47,7 +47,9 @@ def bulk_match(request: BulkMatchRequest):
         input_name = standardize_name(request.input_name)
         df = fetch_sanctions()
 
-        df["features"] = df["cleaned_name"].apply(lambda name2: compute_features(input_name, name2))
+        df["features"] = df["cleaned_name"].apply(
+            lambda name: compute_features(input_name, name)
+        )
 
         features_df = pd.DataFrame(df["features"].tolist())
         df["probability"] = model.predict_proba(features_df)[:, 1]
@@ -71,5 +73,36 @@ def bulk_match(request: BulkMatchRequest):
             )
             for _, row in matched.iterrows()
         ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/top", response_model=List[MatchResponse])
+def bulk_match_top_only(request: BulkMatchRequest):
+    try:
+        input_name = standardize_name(request.input_name)
+        df = fetch_sanctions()
+
+        df["features"] = df["cleaned_name"].apply(
+            lambda name: compute_features(input_name, name)
+        )
+        
+        features_df = pd.DataFrame(df["features"].tolist())
+        df["probability"] = model.predict_proba(features_df)[:, 1]
+
+        top_match = df.sort_values("probability", ascending=False).iloc[0]
+        is_match = top_match["probability"] >= THRESHOLD
+
+        insert_prediction_log(
+            input_name=input_name,
+            name=top_match["cleaned_name"],
+            prob=top_match["probability"],
+            is_match=is_match
+        )
+
+        return MatchResponse(
+            match_probability=round(top_match["probability"], 4),
+            is_match=is_match,
+            threshold=THRESHOLD
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
