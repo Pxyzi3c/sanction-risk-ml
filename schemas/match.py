@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 class MatchRequest(BaseModel):
     name1: str
@@ -21,14 +21,14 @@ class MatchCandidate(BaseModel):
     is_match: bool
     threshold: float
 
-class BulkMatchResponse(BaseModel):
-    input_name: str
-    candidates: List[MatchCandidate]
-
 class MatchSanction(BaseModel):
     ent_num: int
     sdn_name: str
     sdn_type: str
     country: str
     cleaned_name: str
-    fuzz_ratio: float
+    fuzz_ratio: Optional[float] = 0
+
+class BulkMatchResponse(BaseModel):
+    input_name: str
+    candidates: List[MatchCandidate]

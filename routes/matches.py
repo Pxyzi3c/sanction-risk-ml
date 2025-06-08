@@ -20,7 +20,7 @@ logging.basicConfig(
 )
 
 @router.get("/matches", response_model=List[MatchSanction])
-async def get_matches(name: str):
+def get_matches(name: str):
     try:
         name_std = standardize_name(name)
         df = fetch_sanctions()

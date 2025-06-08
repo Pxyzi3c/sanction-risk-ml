@@ -1,12 +1,13 @@
 from fastapi import APIRouter, HTTPException
 from schemas.match import (
     MatchRequest, MatchResponse,
-    BulkMatchRequest, BulkMatchResponse, MatchCandidate
+    BulkMatchRequest, BulkMatchResponse, MatchCandidate, MatchSanction
 )
-# from database.db import get_db
+from database.db import fetch_sanctions, fetch_sanctions_by_country
 from utils.preprocessing import standardize_name
 from utils.features import compute_features
 from sqlalchemy import text
+from typing import List
 
 import pandas as pd
 import joblib
@@ -25,7 +26,7 @@ logging.basicConfig(
     format="%(asctime)s | %(message)s"
 )
 
-@router.post("/predict_match", response_model=MatchResponse)
+@router.post("", response_model=MatchResponse)
 def predict_match(request: MatchRequest):
     try:
         # Step 1: Preprocess
@@ -49,5 +50,18 @@ def predict_match(request: MatchRequest):
             is_match=is_match,
             threshold=threshold
         )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/bulk", response_model=BulkMatchResponse)
+def bulk_match(request: BulkMatchRequest):
+    try:
+        df = fetch_sanctions_by_country("russia")
+
+        print(df.head())
+        return {
+            "input_name": request.input_name,
+            "candidates": df.head(request.top_n).to_dict(orient="records")
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -10,5 +10,5 @@ app = FastAPI(
 # -----------------------------
 # Routes
 # -----------------------------
-app.include_router(predict_router)
+app.include_router(predict_router, prefix="/predict_match")
 app.include_router(matches_router)
