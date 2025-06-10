@@ -38,18 +38,20 @@ def fetch_sanctions_by_country(country: str) -> pd.DataFrame:
         df = pd.DataFrame(result.fetchall(), columns=result.keys())
     return df
 
-def insert_prediction_log(input_text: str, name: str, prob: float, is_match: bool):
+def insert_prediction_log(input_text: str, name: str, prob: float, is_match: bool, threshold: float, source_route: str):
     engine = get_engine()
     query_text = text("""
-        INSERT INTO prediction_log (input_name, name, probability, is_match)
-        VALUES (:input_name, :name, :probability, :is_match);         
+        INSERT INTO prediction_log (input_name, name, probability, is_match, threshold, source_route)
+        VALUES (:input_name, :name, :probability, :is_match, :threshold, :source_route);         
     """)
 
     params = {
         "input_name": input_text,
         "name": name,
         "probability": float(prob),
-        "is_match": bool(is_match)
+        "is_match": bool(is_match),
+        "threshold": float(threshold),
+        "source_route": source_route
     }
 
     try:

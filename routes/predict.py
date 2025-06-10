@@ -63,7 +63,9 @@ def bulk_match(request: BulkMatchRequest):
                 input_text=input_name,
                 name=row["cleaned_name"],
                 prob=row["probability"],
-                is_match=row["is_match"]
+                is_match=row["is_match"],
+                threshold=THRESHOLD,
+                source_route="predict_match/bulk"
             )
         
         return [
@@ -89,7 +91,9 @@ def bulk_match_top_only(request: BulkMatchRequest):
             input_text=input_name,
             name=top_match["cleaned_name"],
             prob=top_match["probability"],
-            is_match=top_match["is_match"]
+            is_match=top_match["is_match"],
+            threshold=THRESHOLD,
+            source_route="predict_match/top"
         )
 
         return MatchResponse(
