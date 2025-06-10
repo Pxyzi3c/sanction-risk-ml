@@ -48,8 +48,14 @@ def insert_prediction_log(
 ):
     engine = get_engine()
     query_text = text("""
-        INSERT INTO prediction_log (input_name, name, probability, is_match, threshold, source_route)
-        VALUES (:input_name, :name, :probability, :is_match, :threshold, :source_route);         
+        INSERT INTO prediction_log (
+            input_name, name, probability, 
+            is_match, threshold, source_route
+        )
+        VALUES (
+            :input_name, :name, :probability, 
+            :is_match, :threshold, :source_route
+        );         
     """)
 
     params = {
