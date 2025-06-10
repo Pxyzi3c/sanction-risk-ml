@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from schemas.match import (
     MatchRequest, MatchResponse,
-    BulkMatchRequest, BulkMatchResponse, MatchCandidate
+    BulkMatchRequest
 )
 from database.db import fetch_sanctions
 from utils.preprocessing import standardize_name

@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-import numpy as np
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import URL
 from dotenv import load_dotenv

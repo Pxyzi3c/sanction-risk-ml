@@ -2,14 +2,11 @@ import logging
 import joblib
 import logging
 
-import pandas as pd
 from fastapi import APIRouter, HTTPException
-from schemas.match import MatchSanction, MatchResponse, BulkMatchRequest
+from schemas.match import MatchSanction
 from database.db import fetch_sanctions
 from utils.preprocessing import standardize_name
 from utils.utils import get_fuzz_ratio
-from utils.features import compute_features
-from database.db import insert_prediction_log
 from typing import List
 
 model = joblib.load("models/xgb_sanction_model.pkl")

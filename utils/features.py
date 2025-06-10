@@ -1,5 +1,4 @@
 from rapidfuzz import fuzz
-import numpy as np
 
 def get_fuzz_ratio(name1: str, name2: str, ratio_type: str) -> float:
     name1 = " ".join(sorted(name1.split()))
