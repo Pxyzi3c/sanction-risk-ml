@@ -12,7 +12,11 @@ def standardize_name(name: str) -> str:
     name = re.sub(r"\s+", " ", name).strip()
     return name
 
-def prepare_bulk_predictions(df: pd.DataFrame, input_name: str, threshold: float) -> pd.DataFrame:
+def prepare_bulk_predictions(
+    df: pd.DataFrame, 
+    input_name: str, 
+    threshold: float
+) -> pd.DataFrame:
     df = df.copy()
     
     df["features"] = df["cleaned_name"].apply(
