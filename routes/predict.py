@@ -4,6 +4,7 @@ from schemas.match import (
     BulkMatchRequest
 )
 from database.db import fetch_sanctions
+from utils.preprocessing import prepare_bulk_predictions
 from utils.preprocessing import standardize_name
 from utils.features import compute_features
 from database.db import insert_prediction_log
@@ -53,15 +54,7 @@ def predict_match(request: MatchRequest):
 def bulk_match(request: BulkMatchRequest):
     try:
         input_name = standardize_name(request.input_name)
-        df = fetch_sanctions()
-
-        df["features"] = df["cleaned_name"].apply(
-            lambda name: compute_features(input_name, name)
-        )
-
-        features_df = pd.DataFrame(df["features"].tolist())
-        df["probability"] = model.predict_proba(features_df)[:, 1]
-        df["is_match"] = df["probability"] >= THRESHOLD
+        df = prepare_bulk_predictions(fetch_sanctions(), input_name, THRESHOLD)
 
         matched = df[df["is_match"] == True]
 
@@ -88,28 +81,20 @@ def bulk_match(request: BulkMatchRequest):
 def bulk_match_top_only(request: BulkMatchRequest):
     try:
         input_name = standardize_name(request.input_name)
-        df = fetch_sanctions()
-
-        df["features"] = df["cleaned_name"].apply(
-            lambda name: compute_features(input_name, name)
-        )
+        df = prepare_bulk_predictions(fetch_sanctions(), input_name, THRESHOLD)
         
-        features_df = pd.DataFrame(df["features"].tolist())
-        df["probability"] = model.predict_proba(features_df)[:, 1]
-
         top_match = df.sort_values("probability", ascending=False).iloc[0]
-        is_match = top_match["probability"] >= THRESHOLD
 
         insert_prediction_log(
             input_text=input_name,
             name=top_match["cleaned_name"],
             prob=top_match["probability"],
-            is_match=is_match
+            is_match=top_match["is_match"]
         )
 
         return MatchResponse(
             match_probability=round(top_match["probability"], 4),
-            is_match=is_match,
+            is_match=top_match["is_match"],
             threshold=THRESHOLD
         )
     except Exception as e:
